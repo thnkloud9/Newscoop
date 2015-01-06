@@ -11,8 +11,9 @@ namespace Newscoop\PluginGeneratorBundle\Command;
 
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+
 use Sensio\Bundle\GeneratorBundle\Generator\Generator;
-use Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper;
+use Sensio\Bundle\GeneratorBundle\Command\Helper\DialogHelper;
 /**
  * Base class for generator commands.
  *
@@ -48,12 +49,12 @@ abstract class GeneratorPluginCommand extends ContainerAwareCommand
         $skeletonDirs[] = __DIR__.'/../Resources';
         return $skeletonDirs;
     }
-    protected function getQuestionHelper()
+    protected function getDialogHelper()
     {
-        $question = $this->getHelperSet()->get('question');
-        if (!$question || get_class($question) !== 'Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper') {
-            $this->getHelperSet()->set($question = new QuestionHelper());
+        $dialog = $this->getHelperSet()->get('dialog');
+        if (!$dialog || get_class($dialog) !== 'Sensio\Bundle\GeneratorBundle\Command\Helper\DialogHelper') {
+            $this->getHelperSet()->set($dialog = new DialogHelper());
         }
-        return $question;
+        return $dialog;
     }
 }
