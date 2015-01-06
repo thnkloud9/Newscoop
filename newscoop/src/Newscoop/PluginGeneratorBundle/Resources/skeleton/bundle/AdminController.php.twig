@@ -21,9 +21,9 @@ class AdminController extends Controller
      * @Route("/admin/{{ pluginName | lower }}")
      * @Template()
      */
-    public function indexAction($name)
+    public function indexAction(Request $request)
     {
-        return array('name' => $name);
+        return array('name' => "admin");
 
     }
 {% endblock class_body %}

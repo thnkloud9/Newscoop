@@ -30,7 +30,7 @@ class BundleGenerator extends Generator
 
     public function generate($pluginName, $namespace, $bundle, $dir, $format, $structure, $admin)
     {
-        $dir .= '/'.strtr($namespace, array("\\" => "", "\/" => ""));
+        $dir .= '/'.strtr($namespace, array('Newscoop' => '', '\\' => '', '\/' => ''));
         if (file_exists($dir)) {
             if (!is_dir($dir)) {
                 throw new \RuntimeException(sprintf('Unable to generate the bundle as the target directory "%s" exists but is a file.', realpath($dir)));
@@ -77,7 +77,7 @@ class BundleGenerator extends Generator
         if ($admin) {
             $this->renderFile('bundle/ConfigurationMenuListener.php.twig', $dir.'/EventListener/ConfigurationMenuListener.php', $parameters);
             $this->renderFile('bundle/AdminController.php.twig', $dir.'/Controller/AdminController.php', $parameters);
-            $this->renderFile('bundle/index.html.twig.twig', $dir.'/Resources/views/Admin/index.html.twig', $parameters);
+            $this->renderFile('bundle/admin.index.html.twig.twig', $dir.'/Resources/views/Admin/index.html.twig', $parameters);
         }
 
         if ($structure) {
