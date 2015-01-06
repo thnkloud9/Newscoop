@@ -42,6 +42,7 @@ class GeneratePluginBundleCommand extends GeneratorPluginCommand
                 new InputOption('format', '', InputOption::VALUE_REQUIRED, 'Use the format for configuration files (php, xml, yml, or annotation)'),
                 new InputOption('structure', '', InputOption::VALUE_NONE, 'Whether to generate the whole directory structure'),
                 new InputOption('admin', '', InputOption::VALUE_NONE, 'Whether to generate a plugin admin structure'),
+                new InputOption('zip', '', InputOption::VALUE_NONE, 'Whether to generate a private plugin zip archive'),
             ))
             ->setDescription('Generates a Newscoop Plugin bundle')
             ->setHelp(<<<EOT
@@ -103,6 +104,7 @@ EOT
         $format = Validators::validateFormat($input->getOption('format'));
         $structure = $input->getOption('structure');
         $admin = $input->getOption('admin');
+        $zip = $input->getOption('zip');
 
         $dialog->writeSection($output, 'Bundle generation');
 
@@ -111,7 +113,16 @@ EOT
         }
 
         $generator = $this->getGenerator();
-        $generator->generate($pluginName, $namespace, $bundle, $dir, $format, $structure, $admin);
+        $generator->generate(   
+            $pluginName, 
+            $namespace, 
+            $bundle, 
+            $dir, 
+            $format, 
+            $structure, 
+            $admin, 
+            $zip
+        );
 
         $output->writeln('Generating the bundle code: <info>OK</info>');
 
@@ -236,6 +247,12 @@ EOT
         }
         $input->setOption('admin', $admin);
 
+        $zip = $input->getOption('zip');
+        if (!$zip && $dialog->askConfirmation($output, $dialog->getQuestion('Do you want to generate a private plugin zip', 'no', '?'), false)) {
+            $zip = true;
+        }
+        $input->setOption('zip', $zip);
+
         // summary
         $output->writeln(array(
             '',
@@ -248,6 +265,6 @@ EOT
 
     protected function createGenerator()
     {
-        return new BundleGenerator($this->getContainer()->get('filesystem'));
+        return new BundleGenerator($this->getContainer());
     }
 }

@@ -23,12 +23,13 @@ class BundleGenerator extends Generator
 {
     private $filesystem;
 
-    public function __construct(Filesystem $filesystem)
+    public function __construct(Container $container)
     {
-        $this->filesystem = $filesystem;
+        $this->container = $container;
+        $this->filesystem = $this->container->get('filesystem');
     }
 
-    public function generate($pluginName, $namespace, $bundle, $dir, $format, $structure, $admin)
+    public function generate($pluginName, $namespace, $bundle, $dir, $format, $structure, $admin, $zip)
     {
         $dir .= '/'.strtr($namespace, array('Newscoop' => '', '\\' => '', '\/' => ''));
         if (file_exists($dir)) {
@@ -89,6 +90,41 @@ class BundleGenerator extends Generator
             $this->filesystem->mkdir($dir.'/Resources/public/css');
             $this->filesystem->mkdir($dir.'/Resources/public/images');
             $this->filesystem->mkdir($dir.'/Resources/public/js');
+        }
+
+        if ($zip) {
+            $zipFilePath = dirname($this->container->getParameter('kernel.root_dir')).'/plugins/private_plugins/' . $pluginName .'PluginBundle.zip';
+            $zipFile = new \ZipArchive();
+            // open archive
+            if ($zipFile->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {
+                throw new \RuntimeException(sprintf('Could not create zip archive "%s".', realpath($zipFilePath)));
+            }
+
+            $dirPathLength = strlen($dir);
+            // initialize an iterator
+            // pass it the directory to be processed
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+            // iterate over the directory
+            // add each file found to the archive
+            $addedDirs = array();
+            foreach ($iterator as $key=>$value) {
+                $fname = substr($key, $dirPathLength);
+                if (strlen($fname) > 0 && !in_array(basename($fname), array('.', '..')) ) {
+                    if ( !in_array(dirname($fname),$addedDirs) ) {
+                        if (!$zipFile->addEmptyDir(dirname($fname))) {
+                            return false;
+                        }
+                        $addedDirs[]=dirname($fname);
+                    }
+                    if (!$zipFile->addFile(realpath($key), $fname)) {
+                        throw new \RuntimeException(sprintf('Could not add file to zip archive "%s".', $key));
+                    }
+                }
+            }
+            // close and save archive
+            if (!$zipFile->close()) {
+                throw new \RuntimeException(sprintf('Could not save zip archive "%s".', realpath($zipFilePath)));
+            }
         }
     }
 }
