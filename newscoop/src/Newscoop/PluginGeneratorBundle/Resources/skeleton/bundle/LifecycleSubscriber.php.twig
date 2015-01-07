@@ -5,6 +5,7 @@ namespace {{ namespace }}\EventListener;
 {% block use_statements %}
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Newscoop\EventDispatcher\Events\GenericEvent;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 {% endblock use_statements %}
 
 /**
@@ -16,17 +17,23 @@ class LifecycleSubscriber implements EventSubscriberInterface
 {% endblock class_definition %}
 {
 {% block class_body %}
-    private $em;
-    
+    private $container;
+   
+    protected $em;
+ 
     protected $scheduler;
 
     protected $cronjobs;
 
-    public function __construct($em, $scheduler)
+    protected $preferences;
+
+    public function __construct(ContainerInterface $container)
     {
         $appDirectory = realpath(__DIR__.'/../../../../application/console');
-        $this->em = $em;
-        $this->scheduler = $scheduler;
+        $this->container = $container;
+        $this->em = $this->container->get('em');
+        $this->scheduler = $this->container->get('newscoop.scheduler');
+        $this->preferences = $this->container->get('system_preferences_service');
         $this->cronjobs = array();
     }
 
@@ -34,6 +41,8 @@ class LifecycleSubscriber implements EventSubscriberInterface
     {
         $tool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
         $tool->updateSchema($this->getClasses(), true);
+        
+        // Set default preferences here
 
         // Generate proxies for entities
         $this->em->getProxyFactory()->generateProxyClasses($this->getClasses(), __DIR__ . '/../../../../library/Proxy');

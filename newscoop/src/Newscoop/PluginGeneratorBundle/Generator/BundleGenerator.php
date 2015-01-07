@@ -94,7 +94,7 @@ class BundleGenerator extends Generator
         }
 
         if ($zip) {
-            $zipFilePath = dirname($this->container->getParameter('kernel.root_dir')).'/plugins/private_plugins/' . $pluginName .'PluginBundle.zip';
+            $zipFilePath = dirname($this->container->getParameter('kernel.root_dir')).'/plugins/private_plugins/' . $vendor . $pluginName .'PluginBundle.zip';
             $zipFile = new \ZipArchive();
             // open archive
             if ($zipFile->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== TRUE) {

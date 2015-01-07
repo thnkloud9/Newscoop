@@ -134,7 +134,7 @@ EOT
 
         $dialog->writeGeneratorSummary($output, $errors);
 
-        $output->writeln('You must run the plugin install command manually: <comment>php application/console plugins:install newscoop/'.strtolower($pluginName).'-plugin-bundle</comment>');
+        $output->writeln('You must run the plugin install command manually: <comment>php application/console plugins:install '.strtolower($vendor).'/'.strtolower($pluginName).'-plugin-bundle</comment>');
     }
 
     protected function interact(InputInterface $input, OutputInterface $output)

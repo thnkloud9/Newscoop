@@ -30,7 +30,7 @@ class ConfigureMenuListener
         $menu = $event->getMenu();
         $menu[$this->translator->trans('Plugins')]->addChild(
             '{{ pluginName }} Plugin',
-            array('uri' => $event->getRouter()->generate('newscoop_{{ pluginName | lower }}plugin_admin_index'))
+            array('uri' => $event->getRouter()->generate('{{ vendor | lower }}_{{ pluginName | lower }}plugin_admin_index'))
         );
     }
 {% endblock class_body %}

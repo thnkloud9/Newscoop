@@ -3,8 +3,7 @@ services:
     {{ vendor | lower }}_{{ pluginName | lower }}_plugin.lifecyclesubscriber:
         class: {{ namespace }}\EventListener\LifecycleSubscriber
         arguments:
-            - @em
-            - @newscoop.scheduler
+            - @service_container
         tags:
             - { name: kernel.event_subscriber}
 
