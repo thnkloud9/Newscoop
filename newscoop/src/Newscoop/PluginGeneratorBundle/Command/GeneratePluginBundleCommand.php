@@ -35,6 +35,7 @@ class GeneratePluginBundleCommand extends GeneratorPluginCommand
     {
         $this
             ->setDefinition(array(
+                new InputOption('vendor', '', InputOption::VALUE_REQUIRED, 'The vendor of the plugin to create'),
                 new InputOption('namespace', '', InputOption::VALUE_REQUIRED, 'The namespace of the plugin to create'),
                 new InputOption('dir', '', InputOption::VALUE_REQUIRED, 'The directory where to create the bundle'),
                 new InputOption('bundle-name', '', InputOption::VALUE_REQUIRED, 'The required bundle name'),
@@ -91,6 +92,7 @@ EOT
         }
 
         // validate the namespace
+        $vendor = Validators::validateVendor($input->getOption('vendor'), false);
         $pluginName = Validators::validatePluginName($input->getOption('plugin-name'), false);
         $namespace = Validators::validateBundleNamespace($input->getOption('namespace'), false);
         if (!$bundle = $input->getOption('bundle-name')) {
@@ -113,7 +115,8 @@ EOT
         }
 
         $generator = $this->getGenerator();
-        $generator->generate(   
+        $generator->generate(
+            $vendor,
             $pluginName, 
             $namespace, 
             $bundle, 
@@ -139,6 +142,47 @@ EOT
         $dialog = $this->getDialogHelper();
         $dialog->writeSection($output, 'Welcome to the Newscoop Plugin bundle generator');
 
+        // vendor 
+        $vendor = null;
+        try {
+            // validate the plugin name
+            $vendor = $input->getOption('vendor') ? Validators::validateVendor($input->getOption('vendor'), false) : null;
+        } catch (\Exception $error) {
+            $output->writeln($dialog->getHelperSet()->get('formatter')->formatBlock($error->getMessage(), 'error'));
+        }
+
+        if (null === $vendor) {
+            $output->writeln(array(
+                '',
+                'Your application code must be written in <comment>bundles</comment>. This command helps',
+                'you generate the bundle name and namespace easily.',
+                '',
+                'Each bundle is hosted under a namespace (like <comment>Google/YoutubePluginBundle</comment>).',
+                'The vendor should be a "vendor" name like your company name',
+                '(Google in the above example)',
+                'It should be camel cased with no spaces, and should NOT contain the words "Plugin"',
+                'or "Bundle" (these will be appended automatically)',
+                '',
+            ));
+
+            $acceptedVendor = false;
+            while (!$acceptedVendor) {
+                $vendor = $dialog->askAndValidate(
+                    $output,
+                    $dialog->getQuestion('Vendor', $input->getOption('vendor')),
+                    function ($vendor) use ($dialog, $output) {
+                        return Validators::validateVendor($vendor, false);
+                    },
+                    false,
+                    $input->getOption('vendor')
+                );
+
+                // mark as accepted, unless they want to try again below
+                $acceptedVendor = true;
+            }
+            $input->setOption('vendor', $vendor);
+        }
+
         // pluginName
         $pluginName = null;
         try {
@@ -155,8 +199,7 @@ EOT
                 'you generate the bundle name and namespace easily.',
                 '',
                 'Each bundle is hosted under a namespace (like <comment>Newscoop/YoutubePluginBundle</comment>).',
-                'The plugin name should be a "vendor" name like your company name, your',
-                'project name, product name, or your client name.',
+                'The plugin name should be a project name, product name, or your client name.',
                 'It should be camel cased with no spaces, and should NOT contain the words "Plugin"',
                 'or "Bundle" (these will be appended automatically)',
                 '',
@@ -181,11 +224,11 @@ EOT
         }
 
         // namespace
-        $namespace = "Newscoop/" . $pluginName . 'PluginBundle';
+        $namespace = ucwords($vendor) ."/" . $pluginName . 'PluginBundle';
         $input->setOption('namespace', $namespace);
 
         // bundle name
-        $bundle = "Newscoop" . $pluginName . 'PluginBundle';
+        $bundle = ucwords($vendor) . $pluginName . 'PluginBundle';
         $input->setOption('bundle-name', $bundle);
 
         // target dir
@@ -197,7 +240,7 @@ EOT
         }
 
         if (null === $dir) {
-            $dir = dirname($this->getContainer()->getParameter('kernel.root_dir')).'/plugins/Newscoop';
+            $dir = dirname($this->getContainer()->getParameter('kernel.root_dir')).'/plugins/'.ucwords($vendor);
 
             $output->writeln(array(
                 '',

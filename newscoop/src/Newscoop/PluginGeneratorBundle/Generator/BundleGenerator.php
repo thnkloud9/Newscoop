@@ -29,9 +29,9 @@ class BundleGenerator extends Generator
         $this->filesystem = $this->container->get('filesystem');
     }
 
-    public function generate($pluginName, $namespace, $bundle, $dir, $format, $structure, $admin, $zip)
+    public function generate($vendor, $pluginName, $namespace, $bundle, $dir, $format, $structure, $admin, $zip)
     {
-        $dir .= '/'.strtr($namespace, array('Newscoop' => '', '\\' => '', '\/' => ''));
+        $dir .= '/'.strtr($namespace, array(ucwords($vendor) => '', '\\' => '', '\/' => ''));
         if (file_exists($dir)) {
             if (!is_dir($dir)) {
                 throw new \RuntimeException(sprintf('Unable to generate the bundle as the target directory "%s" exists but is a file.', realpath($dir)));
@@ -47,6 +47,7 @@ class BundleGenerator extends Generator
 
         $basename = substr($bundle, 0, -6);
         $parameters = array(
+            'vendor' => $vendor,
             'admin' => $admin,
             'pluginName' => $pluginName,
             'namespace' => $namespace,

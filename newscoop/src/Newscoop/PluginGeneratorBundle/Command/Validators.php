@@ -18,6 +18,15 @@ namespace Newscoop\PluginGeneratorBundle\Command;
  */
 class Validators
 {
+    public static function validateVendor($vendor)
+    {
+        if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $vendor)) {
+            throw new \InvalidArgumentException('The vendor contains invalid characters.');
+        }
+
+        return $vendor;
+    }
+
     public static function validatePluginName($pluginName)
     {
         if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $pluginName)) {
