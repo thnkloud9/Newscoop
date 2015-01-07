@@ -106,7 +106,7 @@ class BundleGenerator extends Generator
             $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             // iterate over the directory
             // add each file found to the archive
-            $addedDirs = array();
+            $addedDirs = array('/');
             foreach ($iterator as $key=>$value) {
                 $fname = substr($key, $dirPathLength);
                 if (strlen($fname) > 0 && !in_array(basename($fname), array('.', '..')) ) {
@@ -116,11 +116,12 @@ class BundleGenerator extends Generator
                         }
                         $addedDirs[]=dirname($fname);
                     }
-                    if (!$zipFile->addFile(realpath($key), $fname)) {
+                    if (!$zipFile->addFile(realpath($key), ltrim($fname, '/'))) {
                         throw new \RuntimeException(sprintf('Could not add file to zip archive "%s".', $key));
                     }
                 }
             }
+
             // close and save archive
             if (!$zipFile->close()) {
                 throw new \RuntimeException(sprintf('Could not save zip archive "%s".', realpath($zipFilePath)));
