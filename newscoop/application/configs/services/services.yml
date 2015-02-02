@@ -61,6 +61,9 @@ services:
     article.link:
         class:      Newscoop\Article\LinkService
         arguments:  ["@em", "@zend_router", "@router"]
+    related_articles:
+        class:      Newscoop\Services\RelatedArticlesService
+        arguments:  ["@em"]
     article.repository:
         class:      Doctrine\Common\Persistence\ObjectRepository
         factory_service: doctrine
@@ -160,8 +163,7 @@ services:
         class:      Newscoop\Services\NotificationService
         arguments:  ["@em"]
     topic:
-        class: Newscoop\Topic\TopicService
-        arguments: ["@em"]
+        alias: newscoop_newscoop.topic_service
     index_client.default:
         class: Newscoop\Search\DefaultIndexClient
         arguments: ["@service_container"]
@@ -213,6 +215,9 @@ services:
     newscoop.scheduler:
         class: Newscoop\Services\SchedulerService
         arguments: ["@em", "%scheduler%"]
+    newscoop.editor:
+        class: Newscoop\Services\EditorService
+        arguments: ["@dispatcher", "@em"]
 
     # Add this event listener registering to newscoop/application/configs/parameters/custom_parameters.yml
     # search_indexer:
