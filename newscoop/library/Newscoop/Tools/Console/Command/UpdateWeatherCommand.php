@@ -139,17 +139,17 @@ class UpdateWeatherCommand extends Console\Command\Command
             $locationType = 'geonames';
 
             // needed during winter months
-            /*
+            /**/
             $locationData = $this->getApiData('wintersports',$locationType,$location->id,'24h');
             $this->saveAllWintersportsData($locationData,
                 'mexs',
                 'all_slopes',
                 $location->name
             );
-            */
+            /**/
 
             // needed during summer months
-            /**/
+            /**
             $locationData = $this->getApiData('waters',$locationType,$location->id,'24h');
             $this->saveAllBathsData($locationData,
                 'mexs',
@@ -169,8 +169,8 @@ class UpdateWeatherCommand extends Console\Command\Command
                             $locationId,
                             $locationName,
                             'mexs',
-                            'all_baths',
-                            //'all_slopes',
+                            //'all_baths', /** NEEDED DURING SUMMER **/
+                            'all_slopes', /** NEEDED DURING WINTER **/
                             $location->name,
                             $location->elevation,
                             false
