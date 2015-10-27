@@ -39,6 +39,7 @@ class UpdateWeatherCommand extends Console\Command\Command
     {
         $config = new \Zend_Config_Ini( APPLICATION_PATH . '/configs/meteonews.ini', APPLICATION_ENV);
         $this->config = $config;
+        $season = $this->config->current_season;
 
         $em = \Zend_Registry::get('container')->getService('em');
         $weatherStatRepository = $em->getRepository('Newscoop\Entity\WeatherStat');
@@ -137,26 +138,29 @@ class UpdateWeatherCommand extends Console\Command\Command
         // get data for all baths lists
         foreach ($config->main_regions as $location) {
             $locationType = 'geonames';
-
+            $listType = '';
+            
             // needed during winter months
-            /**/
-            $locationData = $this->getApiData('wintersports',$locationType,$location->id,'24h');
-            $this->saveAllWintersportsData($locationData,
-                'mexs',
-                'all_slopes',
-                $location->name
-            );
-            /**/
+            if ($season == 'winter') {
+                $locationData = $this->getApiData('wintersports',$locationType,$location->id,'24h');
+                $this->saveAllWintersportsData($locationData,
+                    'mexs',
+                    'all_slopes',
+                    $location->name
+                );
+                $listType = 'all_slopes';
+            }
 
             // needed during summer months
-            /**
-            $locationData = $this->getApiData('waters',$locationType,$location->id,'24h');
-            $this->saveAllBathsData($locationData,
-                'mexs',
-                'all_baths',
-                $location->name
-            );
-            /**/
+            if ($season == 'summer') {
+                $locationData = $this->getApiData('waters',$locationType,$location->id,'24h');
+                $this->saveAllBathsData($locationData,
+                    'mexs',
+                    'all_baths',
+                    $location->name
+                );
+                $listType = 'all_baths';
+            }
 
             // now load forecast data
             foreach ($locationData->content as $regions) {
@@ -169,8 +173,7 @@ class UpdateWeatherCommand extends Console\Command\Command
                             $locationId,
                             $locationName,
                             'mexs',
-                            //'all_baths', /** NEEDED DURING SUMMER **/
-                            'all_slopes', /** NEEDED DURING WINTER **/
+                            $listType,
                             $location->name,
                             $location->elevation,
                             false
