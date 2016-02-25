@@ -105,8 +105,8 @@ class Application_Form_Profile extends Zend_Form
             'label' => $translator->trans('Allow sending emails', array(), 'users'),
         ));
 
-        $profile->addElement('text', 'custom_attr_1', array(
-            'label' => $translator->trans('Custom Attr 1', array(), 'users'),
+        $profile->addElement('text', 'location', array(
+            'label' => $translator->trans('Location', array(), 'users'),
             'filters' => array('stringTrim'),
         ));
 
